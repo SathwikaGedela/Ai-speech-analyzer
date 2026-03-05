@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .error { color: red; background: #ffe6e6; padding: 10px; margin: 10px 0; }
+        .success { color: green; background: #e6ffe6; padding: 10px; margin: 10px 0; }
+        .loading { color: blue; background: #e6f3ff; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 10px 0; }
+        input[type="file"] { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Frontend Network Error Test</h1>
+    
+    <div id="status">Ready to test...</div>
+    
+    <h2>Test 1: Check Backend Connection</h2>
+    <button onclick="testConnection()">Test Connection</button>
+    <div id="connectionResult"></div>
+    
+    <h2>Test 2: Test File Upload</h2>
+    <input type="file" id="testFile" accept="audio/*">
+    <button onclick="testFileUpload()">Test Upload</button>
+    <div id="uploadResult"></div>
+    
+    <h2>Test 3: Detailed Request Info</h2>
+    <button onclick="testDetailedRequest()">Detailed Test</button>
+    <div id="detailedResult"></div>
+
+    <script>
+        async function testConnection() {
+            const result = document.getElementById('connectionResult');
+            result.innerHTML = '<div class="loading">Testing connection...</div>';
+            
+            try {
+                const response = await fetch('/');
+                if (response.ok) {
+                    result.innerHTML = '<div class="success">✅ Connection successful! Status: ' + response.status + '</div>';
+                } else {
+                    result.innerHTML = '<div class="error">❌ Connection failed! Status: ' + response.status + '</div>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="error">❌ Connection error: ' + error.message + '</div>';
+            }
+        }
+        
+        async function testFileUpload() {
+            const result = document.getElementById('uploadResult');
+            const fileInput = document.getElementById('testFile');
+            
+            if (!fileInput.files[0]) {
+                result.innerHTML = '<div class="error">❌ Please select a file first</div>';
+                return;
+            }
+            
+            result.innerHTML = '<div class="loading">Testing file upload...</div>';
+            
+            const formData = new FormData();
+            formData.append('audio_file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        if (data.success) {
+                            result.innerHTML = '<div class="success">✅ Upload successful!</div>';
+                        } else {
+                            result.innerHTML = '<div class="error">❌ Server error: ' + (data.error || 'Unknown error') + '</div>';
+                        }
+                    } catch (parseError) {
+                        result.innerHTML = '<div class="error">❌ JSON parse error: ' + parseError.message + '</div>';
+                    }
+                } else {
+                    result.innerHTML = '<div class="error">❌ HTTP error: ' + response.status + ' - ' + responseText + '</div>';
+                }
+                
+            } catch (error) {
+                result.innerHTML = '<div class="error">❌ Network error: ' + error.message + '</div>';
+                console.error('Detailed error:', error);
+            }
+        }
+        
+        async function testDetailedRequest() {
+            const result = document.getElementById('detailedResult');
+            result.innerHTML = '<div class="loading">Running detailed test...</div>';
+            
+            // Create a simple test file
+            const testBlob = new Blob(['test audio data'], { type: 'audio/wav' });
+            const formData = new FormData();
+            formData.append('audio_file', testBlob, 'test.wav');
+            
+            try {
+                console.log('Making request to /analyze...');
+                
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('Response received:', response);
+                console.log('Status:', response.status);
+                console.log('Status text:', response.statusText);
+                console.log('Headers:', [...response.headers.entries()]);
+                
+                const responseText = await response.text();
+                console.log('Response body:', responseText);
+                
+                let resultHTML = '<div class="success">✅ Request completed!</div>';
+                resultHTML += '<p><strong>Status:</strong> ' + response.status + ' ' + response.statusText + '</p>';
+                resultHTML += '<p><strong>Response:</strong> ' + responseText.substring(0, 200) + '...</p>';
+                
+                result.innerHTML = resultHTML;
+                
+            } catch (error) {
+                console.error('Request failed:', error);
+                result.innerHTML = '<div class="error">❌ Request failed: ' + error.message + '</div>';
+            }
+        }
+        
+        // Log all network activity
+        console.log('Frontend test page loaded');
+        console.log('Current URL:', window.location.href);
+    </script>
+</body>
+</html>

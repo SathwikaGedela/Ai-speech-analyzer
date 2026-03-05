@@ -1,0 +1,38 @@
+Summary
+Here's a complete overview of your database details:
+
+🗄️ Database Overview
+Type: SQLite database
+Location: F:\speech\backend\app.db
+Size: 86 KB (small and efficient)
+Status: Healthy and functional
+📊 Database Content
+Users Table (9 users):
+
+Stores user accounts with authentication
+Includes: John Doe, Sathwika Gedela, Jane Smith, and 6 others
+All users have encrypted passwords and are active
+Speech Sessions Table (59 sessions):
+
+Comprehensive speech analysis data
+Tracks: transcripts, WPM, fillers, sentiment, confidence, emotions
+Advanced metrics: grammar scores, vocabulary diversity, pronunciation clarity
+Feedback system: strengths, improvements, actionable tips
+🔧 How to Check Database Details
+Quick Methods:
+
+python check_database.py - Basic structure and sample data
+python check_database_details_comprehensive.py - Full analysis
+python check_users_database.py - User-specific data (when backend running)
+Manual SQLite Access:
+
+sqlite3 backend/app.db
+.tables                    # List tables
+SELECT * FROM user;        # View users
+SELECT * FROM speech_session LIMIT 5;  # View sessions
+Visual Tools:
+
+DB Browser for SQLite (free GUI)
+VS Code SQLite extension
+SQLite Studio
+Your database is well-structured with rich speech analysis data and proper user management. The system is actively being used with 59 analysis sessions across 9 users!

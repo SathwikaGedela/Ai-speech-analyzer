@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Speech Analysis System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="glass-card rounded-3xl mb-6 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold">Welcome, {{ user.first_name }}!</h1>
+                        <p class="text-indigo-100">{{ user.email }}</p>
+                    </div>
+                    <button onclick="logout()" 
+                            class="bg-white/20 hover:bg-white/30 border border-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:-translate-y-0.5">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Details -->
+        <div class="glass-card rounded-3xl p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">Account Information</h2>
+            
+            <div class="grid gap-4">
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl border-l-4 border-indigo-500">
+                    <span class="font-semibold text-gray-700">Full Name:</span>
+                    <span class="text-gray-900">{{ user.first_name }} {{ user.last_name }}</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl border-l-4 border-purple-500">
+                    <span class="font-semibold text-gray-700">Email:</span>
+                    <span class="text-gray-900">{{ user.email }}</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl border-l-4 border-pink-500">
+                    <span class="font-semibold text-gray-700">Phone:</span>
+                    <span class="text-gray-900">{{ user.phone }}</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl border-l-4 border-green-500">
+                    <span class="font-semibold text-gray-700">Member Since:</span>
+                    <span class="text-gray-900">{{ user.created_at.strftime('%B %d, %Y') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card rounded-3xl p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">Speech Analysis Tools</h2>
+            
+            <div class="grid md:grid-cols-3 gap-4">
+                <a href="/" class="block p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 hover:scale-105">
+                    <div class="text-blue-600 text-2xl mb-2">🎤</div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Audio Analysis</h3>
+                    <p class="text-gray-600 text-sm">Upload and analyze your speech recordings</p>
+                </a>
+                
+                <a href="/interview" class="block p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 hover:scale-105">
+                    <div class="text-purple-600 text-2xl mb-2">💼</div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Interview Mode</h3>
+                    <p class="text-gray-600 text-sm">Practice interviews with real-time feedback</p>
+                </a>
+                
+                <a href="/history" class="block p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-200 hover:border-green-300 transition-all duration-300 hover:scale-105">
+                    <div class="text-green-600 text-2xl mb-2">📊</div>
+                    <h3 class="font-semibold text-gray-800 mb-2">History & Progress</h3>
+                    <p class="text-gray-600 text-sm">View your analysis history and progress</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="glass-card rounded-3xl p-6 mt-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">Account Stats</h2>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="p-4 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl text-center">
+                    <div class="text-2xl font-bold text-indigo-600">Active</div>
+                    <div class="text-sm text-gray-600">Account Status</div>
+                </div>
+                <div class="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl text-center">
+                    <div class="text-2xl font-bold text-purple-600">Complete</div>
+                    <div class="text-sm text-gray-600">Profile Setup</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function logout() {
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                
+                if (response.ok) {
+                    window.location.href = '/auth'
+                }
+            } catch (error) {
+                console.error('Logout failed:', error)
+                // Force redirect anyway
+                window.location.href = '/auth'
+            }
+        }
+    </script>
+</body>
+</html>

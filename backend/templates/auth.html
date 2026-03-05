@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication - Speech Analysis System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-out': 'slideOut 0.4s ease-in forwards',
+                        'bounce-in': 'bounceIn 0.6s ease-out',
+                        'pulse-ring': 'pulse 2s infinite',
+                        'spin-slow': 'spin 1s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideOut: {
+                            '0%': { opacity: '1', transform: 'translateX(0)' },
+                            '100%': { opacity: '0', transform: 'translateX(-100px)' },
+                        },
+                        bounceIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.3)' },
+                            '50%': { opacity: '1', transform: 'scale(1.05)' },
+                            '70%': { transform: 'scale(0.9)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .error-message {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        .error-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Signup Form -->
+        <div id="signupCard" class="glass-card rounded-3xl p-8 shadow-2xl">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Join Speech Analysis</h2>
+            
+            <form id="signupForm" class="space-y-6">
+                <!-- Name Row -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                        <input type="text" name="firstName" required
+                               class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300">
+                        <div class="error-message text-red-500 text-sm mt-1" id="firstNameError"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                        <input type="text" name="lastName" required
+                               class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300">
+                        <div class="error-message text-red-500 text-sm mt-1" id="lastNameError"></div>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input type="email" name="email" required
+                           class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300">
+                    <div class="error-message text-red-500 text-sm mt-1" id="emailError"></div>
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <input type="tel" name="phone" required
+                           class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300">
+                    <div class="error-message text-red-500 text-sm mt-1" id="phoneError"></div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" name="password" required
+                           class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300">
+                    <div class="error-message text-red-500 text-sm mt-1" id="passwordError"></div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                    <input type="password" name="confirmPassword" required
+                           class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300">
+                    <div class="error-message text-red-500 text-sm mt-1" id="confirmPasswordError"></div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="signupBtn"
+                        class="btn-primary w-full py-3 px-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold transition-all duration-300 relative">
+                    <span id="signupBtnText">Create Account</span>
+                    <div id="signupSpinner" class="hidden absolute inset-0 flex items-center justify-center">
+                        <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin-slow"></div>
+                    </div>
+                </button>
+
+                <!-- Switch to Signin -->
+                <div class="text-center">
+                    <button type="button" onclick="showSignin()" class="text-indigo-600 hover:text-purple-600 underline text-sm transition-colors duration-300">
+                        Already have an account? Sign In
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Signin Form -->
+        <div id="signinCard" class="glass-card rounded-3xl p-8 shadow-2xl hidden">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Welcome Back</h2>
+            
+            <form id="signinForm" class="space-y-6">
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input type="email" name="email" required
+                           class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300">
+                    <div class="error-message text-red-500 text-sm mt-1" id="signinEmailError"></div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" name="password" required
+                           class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all duration-300">
+                    <div class="error-message text-red-500 text-sm mt-1" id="signinPasswordError"></div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="signinBtn"
+                        class="btn-primary w-full py-3 px-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold transition-all duration-300 relative">
+                    <span id="signinBtnText">Sign In</span>
+                    <div id="signinSpinner" class="hidden absolute inset-0 flex items-center justify-center">
+                        <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin-slow"></div>
+                    </div>
+                </button>
+
+                <!-- Switch to Signup -->
+                <div class="text-center">
+                    <button type="button" onclick="showSignup()" class="text-indigo-600 hover:text-purple-600 underline text-sm transition-colors duration-300">
+                        Don't have an account? Sign Up
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Form switching functions
+        function showSignup() {
+            document.getElementById('signinCard').classList.add('hidden')
+            document.getElementById('signupCard').classList.remove('hidden')
+            document.getElementById('signupCard').classList.add('animate-bounce-in')
+            clearErrors()
+        }
+
+        function showSignin() {
+            document.getElementById('signupCard').classList.add('hidden')
+            document.getElementById('signinCard').classList.remove('hidden')
+            document.getElementById('signinCard').classList.add('animate-bounce-in')
+            clearErrors()
+        }
+
+        // Error handling
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId)
+            errorElement.textContent = message
+            errorElement.classList.add('show')
+        }
+
+        function clearErrors() {
+            const errors = document.querySelectorAll('.error-message')
+            errors.forEach(error => {
+                error.classList.remove('show')
+                error.textContent = ''
+            })
+        }
+
+        // Loading states
+        function setLoading(formType, isLoading) {
+            const btn = document.getElementById(formType + 'Btn')
+            const text = document.getElementById(formType + 'BtnText')
+            const spinner = document.getElementById(formType + 'Spinner')
+            
+            if (isLoading) {
+                btn.disabled = true
+                text.classList.add('invisible')
+                spinner.classList.remove('hidden')
+            } else {
+                btn.disabled = false
+                text.classList.remove('invisible')
+                spinner.classList.add('hidden')
+            }
+        }
+
+        // Signup form handler
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            clearErrors()
+            
+            const formData = new FormData(e.target)
+            const data = Object.fromEntries(formData.entries())
+            
+            setLoading('signup', true)
+            
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                
+                const result = await response.json()
+                
+                if (response.ok) {
+                    // Success - switch to signin and pre-fill email
+                    showSignin()
+                    document.querySelector('#signinForm input[name="email"]').value = data.email
+                } else {
+                    // Show error
+                    if (result.error.includes('First name')) {
+                        showError('firstNameError', result.error)
+                    } else if (result.error.includes('Last name')) {
+                        showError('lastNameError', result.error)
+                    } else if (result.error.includes('email')) {
+                        showError('emailError', result.error)
+                    } else if (result.error.includes('phone')) {
+                        showError('phoneError', result.error)
+                    } else if (result.error.includes('Password')) {
+                        showError('passwordError', result.error)
+                    } else if (result.error.includes('match')) {
+                        showError('confirmPasswordError', result.error)
+                    }
+                }
+            } catch (error) {
+                showError('emailError', 'Network error. Please try again.')
+            } finally {
+                setLoading('signup', false)
+            }
+        })
+
+        // Signin form handler
+        document.getElementById('signinForm').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            clearErrors()
+            
+            const formData = new FormData(e.target)
+            const data = Object.fromEntries(formData.entries())
+            
+            setLoading('signin', true)
+            
+            try {
+                const response = await fetch('/api/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                
+                const result = await response.json()
+                
+                if (response.ok) {
+                    // Success - redirect to dashboard
+                    window.location.href = '/dashboard'
+                } else {
+                    // Show error
+                    showError('signinPasswordError', result.error)
+                }
+            } catch (error) {
+                showError('signinPasswordError', 'Network error. Please try again.')
+            } finally {
+                setLoading('signin', false)
+            }
+        })
+
+        // Clear errors on input
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                const errorId = input.name + 'Error'
+                const errorElement = document.getElementById(errorId)
+                if (errorElement) {
+                    errorElement.classList.remove('show')
+                }
+            })
+        })
+    </script>
+</body>
+</html>

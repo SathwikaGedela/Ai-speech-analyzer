@@ -1,0 +1,262 @@
+/* Card Hover Enhancement Utilities */
+
+/* Base hover lift effects */
+.hover-lift-subtle {
+  transition: all 0.25s ease-out;
+}
+
+.hover-lift-subtle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.hover-lift-medium {
+  transition: all 0.3s ease-out;
+}
+
+.hover-lift-medium:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.hover-lift-interactive {
+  transition: all 0.3s ease-out;
+  cursor: pointer;
+}
+
+.hover-lift-interactive:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.hover-lift-interactive:active {
+  transform: translateY(0) scale(0.99);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.15s ease-out;
+}
+
+/* Enhanced background colors for hover states */
+.bg-blue-25 {
+  background-color: #f8faff;
+}
+
+.bg-green-25 {
+  background-color: #f7fef8;
+}
+
+.bg-purple-25 {
+  background-color: #faf8ff;
+}
+
+.bg-yellow-25 {
+  background-color: #fffef7;
+}
+
+.bg-indigo-25 {
+  background-color: #f8f9ff;
+}
+
+.bg-pink-25 {
+  background-color: #fef7f7;
+}
+
+.bg-orange-25 {
+  background-color: #fff8f5;
+}
+
+.bg-red-25 {
+  background-color: #fef7f7;
+}
+
+/* Card-specific hover classes */
+.card-hover-default {
+  @apply transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-0.5;
+}
+
+.card-hover-interactive {
+  @apply transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-1 hover:scale-[1.01] cursor-pointer active:scale-[0.99] active:translate-y-0;
+}
+
+.card-hover-subtle {
+  @apply transition-all duration-250 ease-out hover:shadow-sm hover:-translate-y-0.5 hover:scale-[1.005];
+}
+
+/* Icon hover effects */
+.icon-hover-scale {
+  @apply transition-transform duration-200 ease-out hover:scale-110;
+}
+
+.icon-hover-bounce {
+  @apply transition-transform duration-200 ease-out hover:scale-110 hover:-translate-y-0.5;
+}
+
+/* Text hover effects */
+.text-hover-color {
+  @apply transition-colors duration-200 ease-out;
+}
+
+/* Badge hover effects */
+.badge-hover {
+  @apply transition-all duration-200 ease-out hover:scale-105;
+}
+
+/* Arrow hover effects */
+.arrow-hover {
+  @apply transition-all duration-200 ease-out hover:translate-x-1;
+}
+
+/* Group hover utilities for child elements */
+.group:hover .group-hover-scale {
+  transform: scale(1.05);
+}
+
+.group:hover .group-hover-translate {
+  transform: translateX(4px);
+}
+
+.group:hover .group-hover-color-primary {
+  color: #4f46e5;
+}
+
+.group:hover .group-hover-color-secondary {
+  color: #7c3aed;
+}
+
+/* Performance optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .hover-lift-subtle,
+  .hover-lift-medium,
+  .hover-lift-interactive,
+  .card-hover-default,
+  .card-hover-interactive,
+  .card-hover-subtle,
+  .icon-hover-scale,
+  .icon-hover-bounce,
+  .text-hover-color,
+  .badge-hover,
+  .arrow-hover {
+    transition: none;
+  }
+  
+  .hover-lift-subtle:hover,
+  .hover-lift-medium:hover,
+  .hover-lift-interactive:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Focus states for accessibility */
+.card-hover-interactive:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .hover-lift-subtle:hover,
+  .hover-lift-medium:hover,
+  .hover-lift-interactive:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border: 2px solid currentColor;
+  }
+}
+
+/* Custom shadow utilities */
+.shadow-hover-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-hover-md {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-hover-lg {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.shadow-hover-xl {
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* Specific card type utilities */
+.dashboard-card {
+  @apply bg-white rounded-xl border border-gray-200 p-6 transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-1 hover:scale-[1.01] cursor-pointer active:scale-[0.99] active:translate-y-0;
+}
+
+.feature-card {
+  @apply p-4 rounded-xl text-center transition-all duration-250 ease-out hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] cursor-pointer;
+}
+
+.metric-card {
+  @apply p-6 rounded-xl transition-all duration-250 ease-out hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.01] group;
+}
+
+.session-card {
+  @apply p-4 bg-gray-50 rounded-xl transition-all duration-300 ease-out hover:bg-white hover:shadow-lg hover:-translate-y-1 hover:scale-[1.01] cursor-pointer active:scale-[0.99] active:translate-y-0;
+}
+
+.glass-card-enhanced {
+  @apply glass-card transition-all duration-300 ease-out hover:shadow-xl hover:-translate-y-1;
+}
+
+/* Button hover enhancements */
+.button-hover-lift {
+  @apply transition-all duration-200 ease-out hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.02] active:scale-[0.98] active:translate-y-0;
+}
+
+/* Loading state for cards */
+.card-loading {
+  @apply animate-pulse bg-gray-200;
+}
+
+.card-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Stagger animation for multiple cards */
+.stagger-animation {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.stagger-animation:nth-child(1) { animation-delay: 0.1s; }
+.stagger-animation:nth-child(2) { animation-delay: 0.2s; }
+.stagger-animation:nth-child(3) { animation-delay: 0.3s; }
+.stagger-animation:nth-child(4) { animation-delay: 0.4s; }
+.stagger-animation:nth-child(5) { animation-delay: 0.5s; }
+.stagger-animation:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

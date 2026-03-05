@@ -1,0 +1,18 @@
+
+# Simple WAV-Only Version
+
+If you want to avoid FFmpeg complications entirely, you can:
+
+1. **Update the allowed extensions in app.py:**
+   ```python
+   ALLOWED_EXTENSIONS = {'wav'}
+   ```
+
+2. **Update the error message:**
+   ```python
+   return jsonify({'error': 'Please upload WAV files only. Convert MP3 to WAV first.'}), 400
+   ```
+
+3. **Convert your MP3 files to WAV using any of the methods above**
+
+This approach is simpler and avoids dependency issues entirely.

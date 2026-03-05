@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech Analysis History</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .back-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .back-link:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #4facfe;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4facfe;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .history-table th {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .history-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .history-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .confidence-score {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+        }
+        
+        .confidence-excellent { background-color: #28a745; }
+        .confidence-good { background-color: #17a2b8; }
+        .confidence-fair { background-color: #ffc107; color: #333; }
+        .confidence-needs-work { background-color: #dc3545; }
+        
+        .emotion-badge {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        
+        .transcript-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .transcript-preview:hover {
+            background-color: #f0f8ff;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+        
+        .transcript-preview.expanded {
+            white-space: normal;
+            max-width: none;
+            word-wrap: break-word;
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #4facfe;
+        }
+        
+        .transcript-toggle {
+            color: #4facfe;
+            font-size: 0.8em;
+            cursor: pointer;
+            margin-left: 5px;
+            text-decoration: underline;
+        }
+        
+        .transcript-toggle:hover {
+            color: #0056b3;
+        }
+        
+        /* Modal styles for full transcript view */
+        .transcript-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .transcript-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .transcript-modal-close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .transcript-modal-close:hover {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .transcript-full-text {
+            line-height: 1.6;
+            font-size: 1.1em;
+            color: #333;
+            margin-top: 20px;
+        }
+        
+        .detail-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+        
+        .detail-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+        }
+        
+        /* Detailed Analysis Modal */
+        .detailed-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+        }
+        
+        .detailed-modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .analysis-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4facfe;
+        }
+        
+        .analysis-section h4 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .metric-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .metric-description {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .list-section {
+            margin-top: 15px;
+        }
+        
+        .list-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .list-section li {
+            background: white;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 3px solid #28a745;
+        }
+        
+        .improvement-item {
+            border-left-color: #ffc107 !important;
+        }
+        
+        .tip-item {
+            border-left-color: #17a2b8 !important;
+        }
+        
+        .error-item {
+            border-left-color: #dc3545 !important;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-data h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            .history-table {
+                font-size: 0.9em;
+            }
+            
+            .history-table th,
+            .history-table td {
+                padding: 8px 6px;
+            }
+            
+            .transcript-preview {
+                max-width: 200px;
+            }
+            
+            .transcript-modal-content {
+                width: 95%;
+                margin: 2% auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📜 Speech Analysis History</h1>
+            <p>Track your progress and improvement over time</p>
+        </div>
+        
+        <div class="content">
+            <a href="/" class="back-link">← Back to Analysis</a>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="color: #666; font-size: 0.9em;">
+                    Last updated: <span id="lastUpdated"></span>
+                </div>
+                <button onclick="location.reload()" style="background: #4facfe; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;">
+                    🔄 Refresh History
+                </button>
+            </div>
+            
+            {% if sessions %}
+                <!-- Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ sessions|length }}</div>
+                        <div class="stat-label">Total Sessions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ "%.1f"|format(sessions|map(attribute='wpm')|list|sum / sessions|length) }}</div>
+                        <div class="stat-label">Average WPM</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ "%.0f"|format(sessions|map(attribute='confidence')|list|sum / sessions|length) }}</div>
+                        <div class="stat-label">Average Confidence</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ "%.1f"|format(sessions|map(attribute='fillers')|list|sum / sessions|length) }}</div>
+                        <div class="stat-label">Average Fillers</div>
+                    </div>
+                </div>
+                
+                <!-- Progress Charts -->
+                <div style="margin-bottom: 40px;">
+                    <h3 style="color: #333; margin-bottom: 20px; text-align: center;">📈 Progress Analytics</h3>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="color: #666; margin-bottom: 10px;">Confidence Score Over Time</h4>
+                        <canvas id="confidenceChart" height="120"></canvas>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="color: #666; margin-bottom: 10px;">Speaking Speed (WPM) Over Time</h4>
+                        <canvas id="wpmChart" height="120"></canvas>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="color: #666; margin-bottom: 10px;">Filler Words Over Time</h4>
+                        <canvas id="fillerChart" height="120"></canvas>
+                    </div>
+                </div>
+                
+                <!-- History Table -->
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Transcript Preview</th>
+                            <th>Overall Score</th>
+                            <th>WPM</th>
+                            <th>Fillers</th>
+                            <th>Grammar</th>
+                            <th>Vocabulary</th>
+                            <th>Sentiment</th>
+                            <th>Emotion</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in sessions %}
+                        <tr>
+                            <td>{{ session.format_datetime('friendly') }}</td>
+                            <td>
+                                <div class="transcript-preview" id="transcript-{{ session.id }}" onclick="toggleTranscript({{ session.id }})">
+                                    <span class="transcript-short">{{ session.transcript[:80] }}{% if session.transcript|length > 80 %}...{% endif %}</span>
+                                    <span class="transcript-full" style="display: none;">{{ session.transcript }}</span>
+                                </div>
+                                {% if session.transcript|length > 80 %}
+                                <div style="margin-top: 5px;">
+                                    <span class="transcript-toggle" onclick="toggleTranscript({{ session.id }})">
+                                        <span id="toggle-text-{{ session.id }}">Show More</span>
+                                    </span>
+                                    <span style="color: #ccc; margin: 0 8px;">|</span>
+                                    <span class="transcript-toggle" onclick="showTranscriptModal({{ session.id }}, `{{ session.transcript|replace('`', '\\`')|replace('\n', '\\n') }}`, '{{ session.format_datetime('friendly') }}')">
+                                        View Full
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set confidence_class = "confidence-needs-work" %}
+                                {% if session.confidence >= 85 %}
+                                    {% set confidence_class = "confidence-excellent" %}
+                                {% elif session.confidence >= 70 %}
+                                    {% set confidence_class = "confidence-good" %}
+                                {% elif session.confidence >= 55 %}
+                                    {% set confidence_class = "confidence-fair" %}
+                                {% endif %}
+                                <span class="confidence-score {{ confidence_class }}">{{ session.confidence }}</span>
+                                <div style="font-size: 0.8em; color: #666; margin-top: 2px;">{{ session.skill_level or 'N/A' }}</div>
+                            </td>
+                            <td>
+                                <strong>{{ "%.1f"|format(session.wpm) }}</strong>
+                                <div style="font-size: 0.8em; color: #666;">{{ session.word_count or 0 }} words</div>
+                            </td>
+                            <td>
+                                <strong>{{ session.fillers }}</strong>
+                                <div style="font-size: 0.8em; color: #666;">{{ "%.1f"|format(session.filler_percentage or 0) }}%</div>
+                            </td>
+                            <td>
+                                <strong>{{ "%.0f"|format(session.grammar_score or 0) }}%</strong>
+                                <div style="font-size: 0.8em; color: #666;">
+                                    {% set grammar_errors = session.get_grammar_errors_list() %}
+                                    {% if grammar_errors and grammar_errors|length > 0 %}
+                                        {{ grammar_errors|length }} errors
+                                    {% else %}
+                                        No errors
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <strong>{{ "%.0f"|format(session.vocabulary_diversity or 0) }}%</strong>
+                                <div style="font-size: 0.8em; color: #666;">{{ session.unique_words or 0 }} unique</div>
+                            </td>
+                            <td>
+                                <strong>{{ "%.2f"|format(session.sentiment) }}</strong>
+                                <div style="font-size: 0.8em; color: #666;">
+                                    {% if session.sentiment > 0.1 %}
+                                        Positive
+                                    {% elif session.sentiment < -0.1 %}
+                                        Negative
+                                    {% else %}
+                                        Neutral
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="emotion-badge">{{ session.emotion or 'unknown' }}</span>
+                                <div style="font-size: 0.8em; color: #666; margin-top: 2px;">{{ session.engagement_level or 'N/A' }}</div>
+                            </td>
+                            <td>
+                                <button onclick="showDetailedAnalysis({{ session.id }})" class="detail-btn">
+                                    📊 Details
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="no-data">
+                    <h3>No Analysis History Yet</h3>
+                    <p>Start analyzing your speech to see your progress here!</p>
+                    <br>
+                    <a href="/" class="back-link">Start Your First Analysis</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Detailed Analysis Modal -->
+    <div id="detailedModal" class="detailed-modal">
+        <div class="detailed-modal-content">
+            <span class="transcript-modal-close" onclick="closeDetailedModal()">&times;</span>
+            <h3 style="color: #333; margin-bottom: 20px;">📊 Comprehensive Analysis Report</h3>
+            <div style="color: #666; font-size: 0.9em; margin-bottom: 30px;" id="detailedDate"></div>
+            
+            <div id="detailedContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <button onclick="closeDetailedModal()" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 20px; cursor: pointer;">
+                    Close Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transcript Modal -->
+    <div id="transcriptModal" class="transcript-modal">
+        <div class="transcript-modal-content">
+            <span class="transcript-modal-close" onclick="closeTranscriptModal()">&times;</span>
+            <h3 style="color: #333; margin-bottom: 10px;">📝 Full Transcript</h3>
+            <div style="color: #666; font-size: 0.9em; margin-bottom: 20px;" id="modalDate"></div>
+            <div class="transcript-full-text" id="modalTranscript"></div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button onclick="copyTranscript()" style="background: #4facfe; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-right: 10px;">
+                    📋 Copy Text
+                </button>
+                <button onclick="closeTranscriptModal()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chartData = {{ chart_data | tojson }};
+        
+        // Show when page was loaded
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        
+        // Transcript functionality
+        function toggleTranscript(sessionId) {
+            const container = document.getElementById(`transcript-${sessionId}`);
+            const shortText = container.querySelector('.transcript-short');
+            const fullText = container.querySelector('.transcript-full');
+            const toggleText = document.getElementById(`toggle-text-${sessionId}`);
+            
+            if (fullText.style.display === 'none') {
+                // Show full text
+                shortText.style.display = 'none';
+                fullText.style.display = 'block';
+                container.classList.add('expanded');
+                if (toggleText) toggleText.textContent = 'Show Less';
+            } else {
+                // Show short text
+                shortText.style.display = 'block';
+                fullText.style.display = 'none';
+                container.classList.remove('expanded');
+                if (toggleText) toggleText.textContent = 'Show More';
+            }
+        }
+        
+        function showTranscriptModal(sessionId, transcript, date) {
+            document.getElementById('modalTranscript').textContent = transcript;
+            document.getElementById('modalDate').textContent = `Session from ${date}`;
+            document.getElementById('transcriptModal').style.display = 'block';
+            
+            // Store transcript for copying
+            window.currentTranscript = transcript;
+        }
+        
+        function closeTranscriptModal() {
+            document.getElementById('transcriptModal').style.display = 'none';
+        }
+        
+        function copyTranscript() {
+            if (window.currentTranscript) {
+                navigator.clipboard.writeText(window.currentTranscript).then(() => {
+                    // Show success feedback
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = '✅ Copied!';
+                    button.style.background = '#28a745';
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '#4facfe';
+                    }, 2000);
+                }).catch(() => {
+                    alert('Could not copy to clipboard. Please select and copy the text manually.');
+                });
+            }
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('transcriptModal');
+            if (event.target === modal) {
+                closeTranscriptModal();
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTranscriptModal();
+                closeDetailedModal();
+            }
+        });
+        
+        // Detailed Analysis Modal Functions
+        function showDetailedAnalysis(sessionId) {
+            // Get session data via AJAX call instead of embedding in page
+            fetch(`/session/${sessionId}`)
+                .then(response => response.json())
+                .then(session => {
+                    if (!session) {
+                        alert('Session data not found');
+                        return;
+                    }
+                    
+                    // Populate modal content
+                    document.getElementById('detailedDate').textContent = `Analysis from ${session.created_at}`;
+                    
+                    const content = generateDetailedContent(session);
+                    document.getElementById('detailedContent').innerHTML = content;
+                    document.getElementById('detailedModal').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error fetching session data:', error);
+                    alert('Could not load session details');
+                });
+        }
+        
+        function generateDetailedContent(session) {
+            return `
+                <div class="analysis-section">
+                    <h4>🎯 Overall Performance</h4>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Confidence Score</div>
+                            <div class="metric-value">${session.confidence}%</div>
+                            <div class="metric-description">${session.skill_level || 'N/A'}</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Engagement Level</div>
+                            <div class="metric-value">${session.engagement_level || 'N/A'}</div>
+                            <div class="metric-description">Audience connection</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">General Impression</div>
+                            <div class="metric-value" style="font-size: 0.9em;">${session.general_impression || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-section">
+                    <h4>🗣️ Vocal Delivery</h4>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Speaking Pace</div>
+                            <div class="metric-value">${session.wpm} WPM</div>
+                            <div class="metric-description">${session.word_count || 0} total words</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Filler Words</div>
+                            <div class="metric-value">${session.fillers} (${(session.filler_percentage || 0).toFixed(1)}%)</div>
+                            <div class="metric-description">Um, uh, like, etc.</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Pronunciation Clarity</div>
+                            <div class="metric-value">${(session.pronunciation_clarity || 0).toFixed(0)}%</div>
+                            <div class="metric-description">Speech clarity</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px;">
+                        <strong>Pace Assessment:</strong> ${session.pace_assessment || 'N/A'}
+                    </div>
+                    <div style="margin-top: 10px; padding: 15px; background: white; border-radius: 8px;">
+                        <strong>Filler Assessment:</strong> ${session.filler_assessment || 'N/A'}
+                    </div>
+                </div>
+                
+                <div class="analysis-section">
+                    <h4>📝 Language Content</h4>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Grammar Score</div>
+                            <div class="metric-value">${(session.grammar_score || 0).toFixed(0)}%</div>
+                            <div class="metric-description">${session.grammar_errors ? JSON.parse(session.grammar_errors).length : 0} errors detected</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Vocabulary Diversity</div>
+                            <div class="metric-value">${(session.vocabulary_diversity || 0).toFixed(0)}%</div>
+                            <div class="metric-description">${session.unique_words || 0} unique words</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Sentiment</div>
+                            <div class="metric-value">${(session.sentiment || 0).toFixed(2)}</div>
+                            <div class="metric-description">${session.sentiment > 0.1 ? 'Positive' : session.sentiment < -0.1 ? 'Negative' : 'Neutral'}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px;">
+                        <strong>Grammar Assessment:</strong> ${session.grammar_assessment || 'N/A'}
+                    </div>
+                    <div style="margin-top: 10px; padding: 15px; background: white; border-radius: 8px;">
+                        <strong>Vocabulary Assessment:</strong> ${session.vocabulary_assessment || 'N/A'}
+                    </div>
+                    <div style="margin-top: 10px; padding: 15px; background: white; border-radius: 8px;">
+                        <strong>Tone Assessment:</strong> ${session.tone_assessment || 'N/A'}
+                    </div>
+                </div>
+                
+                <div class="analysis-section">
+                    <h4>🎭 Emotional Analysis</h4>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-label">Detected Emotion</div>
+                            <div class="metric-value">${session.emotion || 'Unknown'}</div>
+                            <div class="metric-description">Primary emotion</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Engagement Level</div>
+                            <div class="metric-value">${session.engagement_level || 'N/A'}</div>
+                            <div class="metric-description">Audience connection</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-section">
+                    <h4>💪 Strengths</h4>
+                    <div class="list-section">
+                        <ul>
+                            ${session.strengths ? JSON.parse(session.strengths).map(strength => `<li>${strength}</li>`).join('') : '<li>No specific strengths recorded</li>'}
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="analysis-section">
+                    <h4>🎯 Areas for Improvement</h4>
+                    <div class="list-section">
+                        <ul>
+                            ${session.improvements ? JSON.parse(session.improvements).map(improvement => `<li class="improvement-item">${improvement}</li>`).join('') : '<li class="improvement-item">No specific improvements suggested</li>'}
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="analysis-section">
+                    <h4>💡 Actionable Tips</h4>
+                    <div class="list-section">
+                        <ul>
+                            ${session.actionable_tips ? JSON.parse(session.actionable_tips).map(tip => `<li class="tip-item"><strong>${tip.title}:</strong> ${tip.description}</li>`).join('') : '<li class="tip-item">No specific tips available</li>'}
+                        </ul>
+                    </div>
+                </div>
+                
+                ${session.grammar_errors && JSON.parse(session.grammar_errors).length > 0 ? `
+                <div class="analysis-section">
+                    <h4>⚠️ Grammar Issues</h4>
+                    <div class="list-section">
+                        <ul>
+                            ${JSON.parse(session.grammar_errors).map(error => `<li class="error-item">${error}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="analysis-section">
+                    <h4>📄 Full Transcript</h4>
+                    <div style="background: white; padding: 20px; border-radius: 8px; line-height: 1.6; font-size: 1.1em;">
+                        ${session.transcript || 'No transcript available'}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function closeDetailedModal() {
+            document.getElementById('detailedModal').style.display = 'none';
+        }
+        
+        // Close detailed modal when clicking outside
+        window.onclick = function(event) {
+            const transcriptModal = document.getElementById('transcriptModal');
+            const detailedModal = document.getElementById('detailedModal');
+            
+            if (event.target === transcriptModal) {
+                closeTranscriptModal();
+            }
+            if (event.target === detailedModal) {
+                closeDetailedModal();
+            }
+        }
+    </script>
+
+    <script>
+        if (chartData.labels.length > 1) {
+            
+            new Chart(document.getElementById("confidenceChart"), {
+                type: "line",
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: "Confidence Score",
+                        data: chartData.confidence,
+                        borderColor: "#4facfe",
+                        backgroundColor: "rgba(79, 172, 254, 0.1)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Score'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            new Chart(document.getElementById("wpmChart"), {
+                type: "line",
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: "Words Per Minute",
+                        data: chartData.wpm,
+                        borderColor: "#28a745",
+                        backgroundColor: "rgba(40, 167, 69, 0.1)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'WPM'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            new Chart(document.getElementById("fillerChart"), {
+                type: "line",
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: "Filler Words",
+                        data: chartData.fillers,
+                        borderColor: "#dc3545",
+                        backgroundColor: "rgba(220, 53, 69, 0.1)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Count'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+        } else {
+            // Hide chart sections if not enough data
+            const chartSections = document.querySelectorAll('#confidenceChart, #wpmChart, #fillerChart');
+            chartSections.forEach(chart => {
+                chart.parentElement.style.display = 'none';
+            });
+            
+            // Show message for insufficient data
+            const chartsContainer = document.querySelector('h3').nextElementSibling;
+            if (chartData.labels.length === 1) {
+                chartsContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #666; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px;"><p>📊 Charts will appear after your second analysis session!</p><p style="font-size: 0.9em; margin-top: 5px;">Keep analyzing to track your progress over time.</p></div>';
+            } else {
+                chartsContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #666; background: #f8f9fa; border-radius: 10px; margin-bottom: 20px;"><p>📊 No data available for charts yet.</p><p style="font-size: 0.9em; margin-top: 5px;">Start analyzing your speech to see progress charts!</p></div>';
+            }
+        }
+    </script>
+</body>
+</html>

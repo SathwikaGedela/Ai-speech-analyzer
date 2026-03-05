@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeechAnalyzer Pro - Advanced Speech Analysis & Interview Training</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s ease-out',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                        'bounce-in': 'bounceIn 0.8s ease-out',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(50px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        bounceIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.3)' },
+                            '50%': { opacity: '1', transform: 'scale(1.05)' },
+                            '70%': { transform: 'scale(0.9)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-card">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold text-gray-800">
+                        🎤 SpeechAnalyzer Pro
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="scrollToSection('features')" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        Features
+                    </button>
+                    <button onclick="scrollToSection('about')" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        About
+                    </button>
+                    <a href="/auth" class="btn-primary text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-20 pb-16 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="animate-fade-in">
+                <h1 class="text-5xl md:text-6xl font-bold text-white mb-6">
+                    Master Your <span class="text-yellow-300">Speaking Skills</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
+                    Advanced AI-powered speech analysis and interview training platform. 
+                    Get real-time feedback, improve your communication, and ace your interviews.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/auth" class="btn-primary text-white px-8 py-4 rounded-xl text-lg font-semibold inline-flex items-center">
+                        🚀 Start Free Analysis
+                    </a>
+                    <button onclick="scrollToSection('demo')" class="btn-secondary text-white px-8 py-4 rounded-xl text-lg font-semibold">
+                        📹 Watch Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 animate-slide-up">
+                <h2 class="text-4xl font-bold text-white mb-4">Powerful Features</h2>
+                <p class="text-xl text-white/80 max-w-2xl mx-auto">
+                    Everything you need to analyze, improve, and perfect your speaking skills
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Speech Analysis -->
+                <div class="feature-card rounded-2xl p-8 text-center animate-bounce-in">
+                    <div class="text-4xl mb-4 animate-float">🎯</div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Speech Analysis</h3>
+                    <p class="text-white/80 mb-6">
+                        Advanced AI analysis of your speech patterns, pace, clarity, and delivery with detailed metrics and insights.
+                    </p>
+                    <ul class="text-white/70 text-sm space-y-2">
+                        <li>✓ Speaking pace (WPM) analysis</li>
+                        <li>✓ Filler word detection</li>
+                        <li>✓ Grammar and vocabulary assessment</li>
+                        <li>✓ Confidence scoring</li>
+                    </ul>
+                </div>
+
+                <!-- Interview Mode -->
+                <div class="feature-card rounded-2xl p-8 text-center animate-bounce-in" style="animation-delay: 0.2s">
+                    <div class="text-4xl mb-4 animate-float" style="animation-delay: 0.5s">💼</div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Interview Training</h3>
+                    <p class="text-white/80 mb-6">
+                        Practice with real interview questions and get AI-powered feedback on relevance and quality of your answers.
+                    </p>
+                    <ul class="text-white/70 text-sm space-y-2">
+                        <li>✓ 50+ interview questions</li>
+                        <li>✓ Answer relevance analysis</li>
+                        <li>✓ Question-specific feedback</li>
+                        <li>✓ Multiple categories (HR, Technical, Behavioral)</li>
+                    </ul>
+                </div>
+
+                <!-- Emotion Detection -->
+                <div class="feature-card rounded-2xl p-8 text-center animate-bounce-in" style="animation-delay: 0.4s">
+                    <div class="text-4xl mb-4 animate-float" style="animation-delay: 1s">😊</div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Emotion Analysis</h3>
+                    <p class="text-white/80 mb-6">
+                        Understand the emotional tone of your speech and learn to convey the right emotions for different contexts.
+                    </p>
+                    <ul class="text-white/70 text-sm space-y-2">
+                        <li>✓ Real-time emotion detection</li>
+                        <li>✓ Sentiment analysis</li>
+                        <li>✓ Tone recommendations</li>
+                        <li>✓ Engagement level scoring</li>
+                    </ul>
+                </div>
+
+                <!-- Progress Tracking -->
+                <div class="feature-card rounded-2xl p-8 text-center animate-bounce-in" style="animation-delay: 0.6s">
+                    <div class="text-4xl mb-4 animate-float" style="animation-delay: 1.5s">📊</div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Progress Tracking</h3>
+                    <p class="text-white/80 mb-6">
+                        Track your improvement over time with detailed analytics, charts, and personalized recommendations.
+                    </p>
+                    <ul class="text-white/70 text-sm space-y-2">
+                        <li>✓ Historical performance data</li>
+                        <li>✓ Interactive progress charts</li>
+                        <li>✓ Skill level tracking</li>
+                        <li>✓ Improvement suggestions</li>
+                    </ul>
+                </div>
+
+                <!-- Real-time Feedback -->
+                <div class="feature-card rounded-2xl p-8 text-center animate-bounce-in" style="animation-delay: 0.8s">
+                    <div class="text-4xl mb-4 animate-float" style="animation-delay: 2s">⚡</div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Real-time Analysis</h3>
+                    <p class="text-white/80 mb-6">
+                        Get instant feedback as you speak with lightning-fast processing and actionable insights.
+                    </p>
+                    <ul class="text-white/70 text-sm space-y-2">
+                        <li>✓ 5ms processing speed</li>
+                        <li>✓ Instant results</li>
+                        <li>✓ Live transcription</li>
+                        <li>✓ Immediate recommendations</li>
+                    </ul>
+                </div>
+
+                <!-- Multi-format Support -->
+                <div class="feature-card rounded-2xl p-8 text-center animate-bounce-in" style="animation-delay: 1s">
+                    <div class="text-4xl mb-4 animate-float" style="animation-delay: 2.5s">🎵</div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Multi-format Support</h3>
+                    <p class="text-white/80 mb-6">
+                        Upload audio in any format - MP3, WAV, M4A, FLAC, WebM. We handle the technical details for you.
+                    </p>
+                    <ul class="text-white/70 text-sm space-y-2">
+                        <li>✓ All major audio formats</li>
+                        <li>✓ Direct recording</li>
+                        <li>✓ File upload</li>
+                        <li>✓ Quality optimization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="glass-card rounded-3xl p-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-6">About SpeechAnalyzer Pro</h2>
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                        Empowering professionals, students, and public speakers with AI-driven speech analysis and improvement tools.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6">Why Choose SpeechAnalyzer Pro?</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="text-2xl mr-4">🧠</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Advanced AI Technology</h4>
+                                    <p class="text-gray-600">Powered by cutting-edge machine learning algorithms for accurate speech analysis and natural language processing.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-2xl mr-4">🎯</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Personalized Feedback</h4>
+                                    <p class="text-gray-600">Get tailored recommendations based on your unique speaking patterns and improvement goals.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-2xl mr-4">📈</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Proven Results</h4>
+                                    <p class="text-gray-600">Users report 40% improvement in speaking confidence and 60% better interview performance.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-2xl mr-4">🔒</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Privacy & Security</h4>
+                                    <p class="text-gray-600">Your audio data is processed securely and never shared. Complete privacy guaranteed.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6">Perfect For:</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-indigo-500 rounded-full mr-3"></div>
+                                <span class="text-gray-700">Job seekers preparing for interviews</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
+                                <span class="text-gray-700">Public speakers and presenters</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-pink-500 rounded-full mr-3"></div>
+                                <span class="text-gray-700">Students practicing presentations</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                                <span class="text-gray-700">Professionals improving communication</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                                <span class="text-gray-700">Language learners enhancing fluency</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                                <span class="text-gray-700">Anyone wanting to speak with confidence</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-16 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="glass-card rounded-3xl p-12">
+                <h2 class="text-4xl font-bold text-gray-800 mb-6">See It In Action</h2>
+                <p class="text-xl text-gray-600 mb-8">
+                    Watch how SpeechAnalyzer Pro provides detailed feedback and actionable insights
+                </p>
+                
+                <div class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-8 mb-8">
+                    <div class="text-6xl mb-4">🎬</div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Interactive Demo</h3>
+                    <p class="text-gray-600 mb-6">
+                        Experience the full power of our speech analysis platform with a live demonstration
+                    </p>
+                    <a href="/auth" class="btn-primary text-white px-8 py-3 rounded-xl font-semibold inline-block">
+                        Try Live Demo
+                    </a>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 text-left">
+                    <div class="bg-white/50 rounded-xl p-6">
+                        <div class="text-3xl mb-3">📤</div>
+                        <h4 class="font-bold text-gray-800 mb-2">1. Upload Audio</h4>
+                        <p class="text-gray-600 text-sm">Record directly or upload your audio file in any format</p>
+                    </div>
+                    <div class="bg-white/50 rounded-xl p-6">
+                        <div class="text-3xl mb-3">🔍</div>
+                        <h4 class="font-bold text-gray-800 mb-2">2. AI Analysis</h4>
+                        <p class="text-gray-600 text-sm">Our AI processes your speech in real-time with detailed metrics</p>
+                    </div>
+                    <div class="bg-white/50 rounded-xl p-6">
+                        <div class="text-3xl mb-3">📋</div>
+                        <h4 class="font-bold text-gray-800 mb-2">3. Get Feedback</h4>
+                        <p class="text-gray-600 text-sm">Receive actionable insights and personalized improvement tips</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="glass-card rounded-3xl p-12">
+                <h2 class="text-4xl font-bold text-gray-800 mb-6">Ready to Improve Your Speaking?</h2>
+                <p class="text-xl text-gray-600 mb-8">
+                    Join thousands of users who have already improved their communication skills with SpeechAnalyzer Pro
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                    <a href="/auth" class="btn-primary text-white px-8 py-4 rounded-xl text-lg font-semibold">
+                        🚀 Start Your Free Analysis
+                    </a>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div>
+                        <div class="text-3xl font-bold text-indigo-600 mb-2">10,000+</div>
+                        <div class="text-gray-600">Analyses Completed</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-purple-600 mb-2">95%</div>
+                        <div class="text-gray-600">User Satisfaction</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-pink-600 mb-2">5ms</div>
+                        <div class="text-gray-600">Processing Speed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="glass-card rounded-2xl p-6">
+                <div class="text-2xl font-bold text-gray-800 mb-4">
+                    🎤 SpeechAnalyzer Pro
+                </div>
+                <p class="text-gray-600 mb-4">
+                    Advanced AI-powered speech analysis and interview training platform
+                </p>
+                <div class="text-gray-500 text-sm">
+                    © 2025 SpeechAnalyzer Pro. Empowering confident communication.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

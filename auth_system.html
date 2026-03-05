@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Auth System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .auth-card.loading::before {
+            left: 100%;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+        }
+
+        .page.slide-out {
+            animation: slideOut 0.4s ease-in forwards;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.loading {
+            pointer-events: none;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .link-btn {
+            background: none;
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            margin-top: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .link-btn:hover {
+            color: #764ba2;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .error.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .success {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .success.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            min-height: 500px;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .user-info p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        .user-details {
+            display: grid;
+            gap: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        /* Animations */
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .bounce-in {
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Signup Page -->
+        <div class="auth-card" id="signupCard">
+            <div class="page active" id="signupPage">
+                <h2>Create Account</h2>
+                <form id="signupForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                            <div class="error" id="firstNameError"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                            <div class="error" id="lastNameError"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                        <div class="error" id="emailError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required>
+                        <div class="error" id="phoneError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                        <div class="error" id="passwordError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <div class="error" id="confirmPasswordError"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="signupBtn">
+                        <span>Create Account</span>
+                    </button>
+                    
+                    <div class="text-center">
+                        <button type="button" class="link-btn" onclick="showSignin()">
+                            Already have an account? Sign In
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Signin Page -->
+        <div class="auth-card" id="signinCard" style="display: none;">
+            <div class="page active" id="signinPage">
+                <h2>Welcome Back</h2>
+                <form id="signinForm">
+                    <div class="form-group">
+                        <label for="signinEmail">Email Address</label>
+                        <input type="email" id="signinEmail" name="email" required>
+                        <div class="error" id="signinEmailError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signinPassword">Password</label>
+                        <input type="password" id="signinPassword" name="password" required>
+                        <div class="error" id="signinPasswordError"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="signinBtn">
+                        <span>Sign In</span>
+                    </button>
+                    
+                    <div class="text-center">
+                        <button type="button" class="link-btn" onclick="showSignup()">
+                            Don't have an account? Sign Up
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="auth-card dashboard" id="dashboardCard" style="display: none;">
+            <div class="page active" id="dashboardPage">
+                <div class="dashboard-header">
+                    <div class="user-info">
+                        <h3 id="dashboardName">Welcome!</h3>
+                        <p id="dashboardEmail"></p>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">
+                        Logout
+                    </button>
+                </div>
+                <div class="dashboard-content">
+                    <h3 style="margin-bottom: 20px; color: #333;">User Details</h3>
+                    <div class="user-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Full Name:</span>
+                            <span class="detail-value" id="fullName"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value" id="userEmail"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Phone:</span>
+                            <span class="detail-value" id="userPhone"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Member Since:</span>
+                            <span class="detail-value" id="memberSince"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // User data storage (in real app, this would be a database)
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+        // Check if user is already logged in
+        if (currentUser) {
+            showDashboard();
+        }
+
+        // Form validation functions
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validatePhone(phone) {
+            const re = /^[\+]?[1-9][\d]{0,15}$/;
+            return re.test(phone.replace(/\s/g, ''));
+        }
+
+        function validatePassword(password) {
+            return password.length >= 6;
+        }
+
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            setTimeout(() => {
+                errorElement.classList.remove('show');
+            }, 3000);
+        }
+
+        function clearErrors() {
+            const errors = document.querySelectorAll('.error');
+            errors.forEach(error => {
+                error.classList.remove('show');
+                error.textContent = '';
+            });
+        }
+
+        // Signup functionality
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const formData = new FormData(this);
+            const userData = {
+                firstName: formData.get('firstName').trim(),
+                lastName: formData.get('lastName').trim(),
+                email: formData.get('email').trim().toLowerCase(),
+                phone: formData.get('phone').trim(),
+                password: formData.get('password'),
+                confirmPassword: formData.get('confirmPassword'),
+                joinDate: new Date().toLocaleDateString()
+            };
+
+            let isValid = true;
+
+            // Validation
+            if (!userData.firstName) {
+                showError('firstNameError', 'First name is required');
+                isValid = false;
+            }
+
+            if (!userData.lastName) {
+                showError('lastNameError', 'Last name is required');
+                isValid = false;
+            }
+
+            if (!validateEmail(userData.email)) {
+                showError('emailError', 'Please enter a valid email address');
+                isValid = false;
+            }
+
+            if (!validatePhone(userData.phone)) {
+                showError('phoneError', 'Please enter a valid phone number');
+                isValid = false;
+            }
+
+            if (!validatePassword(userData.password)) {
+                showError('passwordError', 'Password must be at least 6 characters');
+                isValid = false;
+            }
+
+            if (userData.password !== userData.confirmPassword) {
+                showError('confirmPasswordError', 'Passwords do not match');
+                isValid = false;
+            }
+
+            // Check if email already exists
+            if (users.find(user => user.email === userData.email)) {
+                showError('emailError', 'Email already registered');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Show loading animation
+                const btn = document.getElementById('signupBtn');
+                btn.classList.add('loading');
+                btn.querySelector('span').style.opacity = '0';
+
+                setTimeout(() => {
+                    // Save user
+                    delete userData.confirmPassword;
+                    users.push(userData);
+                    localStorage.setItem('users', JSON.stringify(users));
+
+                    // Reset form and show signin
+                    this.reset();
+                    btn.classList.remove('loading');
+                    btn.querySelector('span').style.opacity = '1';
+
+                    // Show success and transition to signin
+                    showSignin();
+                    
+                    // Pre-fill email in signin form
+                    document.getElementById('signinEmail').value = userData.email;
+                }, 1500);
+            }
+        });
+
+        // Signin functionality
+        document.getElementById('signinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const email = document.getElementById('signinEmail').value.trim().toLowerCase();
+            const password = document.getElementById('signinPassword').value;
+
+            let isValid = true;
+
+            if (!validateEmail(email)) {
+                showError('signinEmailError', 'Please enter a valid email address');
+                isValid = false;
+            }
+
+            if (!password) {
+                showError('signinPasswordError', 'Password is required');
+                isValid = false;
+            }
+
+            if (isValid) {
+                const user = users.find(u => u.email === email && u.password === password);
+
+                if (user) {
+                    // Show loading animation
+                    const btn = document.getElementById('signinBtn');
+                    btn.classList.add('loading');
+                    btn.querySelector('span').style.opacity = '0';
+
+                    setTimeout(() => {
+                        // Save current user
+                        currentUser = user;
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+
+                        // Reset form
+                        this.reset();
+                        btn.classList.remove('loading');
+                        btn.querySelector('span').style.opacity = '1';
+
+                        // Show dashboard
+                        showDashboard();
+                    }, 1500);
+                } else {
+                    showError('signinPasswordError', 'Invalid email or password');
+                }
+            }
+        });
+
+        // Navigation functions
+        function showSignup() {
+            const signinCard = document.getElementById('signinCard');
+            const signupCard = document.getElementById('signupCard');
+            
+            signinCard.style.display = 'none';
+            signupCard.style.display = 'block';
+            signupCard.classList.add('bounce-in');
+            
+            setTimeout(() => {
+                signupCard.classList.remove('bounce-in');
+            }, 600);
+        }
+
+        function showSignin() {
+            const signupCard = document.getElementById('signupCard');
+            const signinCard = document.getElementById('signinCard');
+            
+            signupCard.style.display = 'none';
+            signinCard.style.display = 'block';
+            signinCard.classList.add('bounce-in');
+            
+            setTimeout(() => {
+                signinCard.classList.remove('bounce-in');
+            }, 600);
+        }
+
+        function showDashboard() {
+            const signinCard = document.getElementById('signinCard');
+            const signupCard = document.getElementById('signupCard');
+            const dashboardCard = document.getElementById('dashboardCard');
+            
+            signinCard.style.display = 'none';
+            signupCard.style.display = 'none';
+            dashboardCard.style.display = 'block';
+            dashboardCard.classList.add('bounce-in');
+
+            // Populate dashboard with user data
+            document.getElementById('dashboardName').textContent = `Welcome, ${currentUser.firstName}!`;
+            document.getElementById('dashboardEmail').textContent = currentUser.email;
+            document.getElementById('fullName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('userPhone').textContent = currentUser.phone;
+            document.getElementById('memberSince').textContent = currentUser.joinDate;
+            
+            setTimeout(() => {
+                dashboardCard.classList.remove('bounce-in');
+            }, 600);
+        }
+
+        function logout() {
+            const dashboardCard = document.getElementById('dashboardCard');
+            
+            // Add slide out animation
+            dashboardCard.style.animation = 'slideOut 0.4s ease-in forwards';
+            
+            setTimeout(() => {
+                // Clear current user
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                
+                // Reset and show signup
+                dashboardCard.style.display = 'none';
+                dashboardCard.style.animation = '';
+                showSignup();
+            }, 400);
+        }
+
+        // Add input focus animations
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('pulse');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('pulse');
+            });
+        });
+
+        // Add loading shimmer effect
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (!this.classList.contains('loading')) {
+                    this.parentElement.parentElement.classList.add('loading');
+                    setTimeout(() => {
+                        this.parentElement.parentElement.classList.remove('loading');
+                    }, 500);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

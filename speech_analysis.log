@@ -1,0 +1,16 @@
+2025-12-25 12:54:47,897 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-25 12:54:47,897 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-25 12:54:47,907 - INFO -  * Restarting with stat
+2025-12-25 12:54:49,220 - WARNING -  * Debugger is active!
+2025-12-25 12:54:49,248 - INFO -  * Debugger PIN: 401-145-969
+2025-12-25 12:55:01,423 - INFO - 127.0.0.1 - - [25/Dec/2025 12:55:01] "GET / HTTP/1.1" 200 -
+2025-12-25 12:55:34,137 - INFO - 127.0.0.1 - - [25/Dec/2025 12:55:34] "POST /analyze HTTP/1.1" 200 -
+2025-12-25 12:58:15,227 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-12-25 12:58:15,228 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-25 12:58:15,231 - INFO -  * Restarting with stat
+2025-12-25 12:58:17,712 - WARNING -  * Debugger is active!
+2025-12-25 12:58:17,743 - INFO -  * Debugger PIN: 401-145-969
+2025-12-25 12:58:38,923 - INFO - 127.0.0.1 - - [25/Dec/2025 12:58:38] "GET / HTTP/1.1" 200 -
+2025-12-25 12:59:09,423 - INFO - 127.0.0.1 - - [25/Dec/2025 12:59:09] "POST /analyze HTTP/1.1" 200 -
